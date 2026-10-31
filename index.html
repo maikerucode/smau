@@ -5517,45 +5517,6 @@
   <script src="instagram.js"></script>
   <script>
 
-    document.addEventListener('DOMContentLoaded', () => {
-
-    // Safe storage implementation with memory fallback for iOS Safari
-    const memoryStorage = {};
-
-    const safeGetItem = (key) => {
-      try {
-        return window.localStorage.getItem(key) || window.sessionStorage.getItem(key) || memoryStorage[key] || null;
-      } catch (e) {
-        return memoryStorage[key] || null;
-      }
-    };
-
-    const safeSetItem = (key, value) => {
-      try {
-        window.localStorage.setItem(key, value);
-      } catch (e) {
-        try {
-          window.sessionStorage.setItem(key, value);
-        } catch (err) {
-          memoryStorage[key] = value;
-        }
-      }
-    };
-
-    // Convert Base64 data URI to Blob URL to prevent Safari memory crashes
-    function dataURLtoBlobUrl(dataurl) {
-      const arr = dataurl.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      const blob = new Blob([u8arr], { type: mime });
-      return URL.createObjectURL(blob);
-    }
-
     const PASSKEY = "au_pass";
     const getPass = () => { try { return localStorage.getItem(PASSKEY) } catch (e) { return null } };
 
@@ -5706,7 +5667,11 @@ Minggu pagi lari 5K sama kakak
     const $ = s => document.querySelector(s), h = (t, c, i) => { const e = document.createElement(t); if (c) e.className = c; if (i != null) e.innerHTML = i; return e }, J = "Asia/Jakarta";
     const fmt = o => new Date().toLocaleString("en-US", { timeZone: J, ...o }), tm = () => fmt({ hour: "numeric", minute: "2-digit", hour12: true }), t12 = () => tm().replace(/\s?[AP]M/, "");
     let S; try { S = JSON.parse(localStorage.getItem("au_sv") || "null") } catch (e) { }
-    S.pass = getPass() || C.pass;
+    if (S) {
+        S.pass = getPass() || C.pass;
+    } else {
+        console.warn("Object or element 'S' is null, skipping passcode assignment.");
+    }
     if (!S || S.v !== C.v) S = { v: C.v, start: Date.now(), done: [], chats: JSON.parse(JSON.stringify(C.chats)), idx: {}, pass: C.pass, wp: C.wp, notifs: [] };
     // keep profile pictures, names and members in sync with the config even for saved progress
     S.chats.forEach(c => { const o = C.chats.find(x => x.id == c.id); if (o) { c.av = o.av; c.col = o.col; c.name = o.name; c.mem = o.mem; c.n = o.n; c.hide = o.hide } });
@@ -6424,8 +6389,6 @@ Minggu pagi lari 5K sama kakak
     /* init */
     function fit() { K = Math.min(innerHeight / 880, innerWidth / 430, 1.3); $("#wrap").style.transform = `translate(-50%,-50%) scale(${K})` }
     addEventListener("resize", fit); fit(); setWp(); scr.classList.add("dk"); if (!LANG) langPicker(); drawHome(); drawNotifs(); tick(); setInterval(tick, 1000);
-
-    });
   </script>
 </body>
 
